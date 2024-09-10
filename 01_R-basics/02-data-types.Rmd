@@ -154,3 +154,36 @@ record[["student_id"]]
 
 You should get used to the fact that in R there are several ways to do the same thing, in particular accessing entries.
 
+### Self-Assessment Questions
+
+1. Read in the `gapminder` data set from the dslabs package.
+
+```{r}
+
+```
+
+2. Is this data a data frame? How many rows and columns are there?
+
+```{r}
+
+```
+
+
+3. Print the first few lines of the data set, and then print the names of the columns.
+
+```{r}
+
+```
+
+4. What type of variable is `life_expectancy`? What type of variable is `continent`? What type of variable is `year`? 
+
+```{r}
+
+```
+
+5. Print out the categories contained in the `continent` variable. How many are there?
+
+```{r}
+
+```
+
