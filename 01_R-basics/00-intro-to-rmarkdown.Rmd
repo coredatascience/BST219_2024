@@ -7,6 +7,14 @@ output:
 
 You will be submitting your homework in the form of an R Markdown file (.Rmd) and a knitted HTML file (.html). This tutorial will help you navigate the R Markdown platform. 
 
+Before we start, the following code will install all the packages we'll be using in this course. We'll run this here so we won't have to worry about it later. 
+
+```{r}
+options(repos = c(CRAN = "https://cloud.r-project.org")) 
+
+install.packages(c("dplyr", "dbplyr", "purrr", "tidyverse", "readr", "readxl", "tidyr", "caret", "dslabs", "ggplot2", "stringr", "ggrepel", "rvest", "forcats", "fs", "lubridate", "devtools", "vroom", "shiny", "shinythemes", "RColorBrewer", "zoo", "gtools", "VennDiagram", "rafalib", "gganimate", "mvtnorm", "matrixStats", "MASS", "broom", "gridExtra", "randomForest", "tree", "htmlwidgets", "pdftools", "maps", "usmap", "splitstackshape", "egg", "rpart", "rpart.plot", "testthat", "tidytext", "textdata", "janeaustenr", "gutenbergr", "scales"))
+```
+
 
 ## Markdown
 

@@ -356,6 +356,15 @@ display: none;
 <p>You will be submitting your homework in the form of an R Markdown
 file (.Rmd) and a knitted HTML file (.html). This tutorial will help you
 navigate the R Markdown platform.</p>
+<p>Before we start, the following code will install all the packages
+we’ll be using in this course. We’ll run this here so we won’t have to
+worry about it later.</p>
+<pre class="r"><code>options(repos = c(CRAN = &quot;https://cloud.r-project.org&quot;)) 
+
+install.packages(c(&quot;dplyr&quot;, &quot;dbplyr&quot;, &quot;purrr&quot;, &quot;tidyverse&quot;, &quot;readr&quot;, &quot;readxl&quot;, &quot;tidyr&quot;, &quot;caret&quot;, &quot;dslabs&quot;, &quot;ggplot2&quot;, &quot;stringr&quot;, &quot;ggrepel&quot;, &quot;rvest&quot;, &quot;forcats&quot;, &quot;fs&quot;, &quot;lubridate&quot;, &quot;devtools&quot;, &quot;vroom&quot;, &quot;shiny&quot;, &quot;shinythemes&quot;, &quot;RColorBrewer&quot;, &quot;zoo&quot;, &quot;gtools&quot;, &quot;VennDiagram&quot;, &quot;rafalib&quot;, &quot;gganimate&quot;, &quot;mvtnorm&quot;, &quot;matrixStats&quot;, &quot;MASS&quot;, &quot;broom&quot;, &quot;gridExtra&quot;, &quot;randomForest&quot;, &quot;tree&quot;, &quot;htmlwidgets&quot;, &quot;pdftools&quot;, &quot;maps&quot;, &quot;usmap&quot;, &quot;splitstackshape&quot;, &quot;egg&quot;, &quot;rpart&quot;, &quot;rpart.plot&quot;, &quot;testthat&quot;, &quot;tidytext&quot;, &quot;textdata&quot;, &quot;janeaustenr&quot;, &quot;gutenbergr&quot;, &quot;scales&quot;))</code></pre>
+<pre><code>## 
+## The downloaded binary packages are in
+##  /var/folders/sz/1h16t5451t7fwqzdsv9rf1hr0000gn/T//Rtmpe8GSOl/downloaded_packages</code></pre>
 <div id="markdown" class="section level2">
 <h2>Markdown</h2>
 <p>Markdown is a simplified version of ‘markup’ languages. Unlike
