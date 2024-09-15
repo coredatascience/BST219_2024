@@ -22,7 +22,7 @@
 | :---     |    :----   |    :--- |
 | Monday   | 4:00-5:00pm  | Building 2, 4th floor, Room 428 |
 | Tuesday  | 2:00-3:00pm  | Heather's office (Building 1, 4th floor, room 421A) |
-| Thursday | 1:30-2:30am | Heather's office (Building 1, 4th floor, room 421A) |
+| Wednesday | 3:00-4:00pm | Heather's office (Building 1, 4th floor, room 421A) |
 | Thursday  | 4:00-5:00pm | Building 2, 4th floor, Room 428 |
 
 # Labs
