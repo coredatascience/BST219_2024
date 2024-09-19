@@ -1,0 +1,377 @@
+---
+title: 'Lab 2: Data wrangling (Solutions)'
+output: html_document
+---
+
+In this first "real" lab we'll go over one of the most important skills in data science: Data Wrangling. It's the art of cleaning and manipulating our data to prepare it for our analyses and visualizations. A common estimate is that for most machine-learning projects, 80% of the time is spent on data wrangling, and the remaining 20% is spent on actually setting up and training the machine learning model.
+
+Over the next two weeks, we'll do a lot of similar tasks, just in different ways. Today, we will focus on what is called Base R, which means using functions that are built into R, and we'll use a collection of functions in the package called `tidyverse`. The `tidyverse` contains tons of extremely useful functions that make data cleaning and manipulation a breeze. You might wonder then, why we aren't learning that right away. In R, you'll learn multiple ways to do things. Sometimes you'll read code that is written in a different way than you'd write it but it does the same thing, and it's good practice to get comfortable with the fact there are often multiple ways to do the same thing in R.
+
+We'll start with basic data manipulation skills. It is useful to FIRST try to visualize in our head (or write down) what we want to do with the data, and THEN look for / think about the code that can do that for us. Once you learn some useful functions, you will be able to combine them to manipulate the data to your will like a wizard.
+
+
+## Part 1: Base R
+
+### Getting an overview of the data
+
+First we'll explore different ways to get an overview of the dataset.
+Let's use the `gapminder` dataset, available in the `dslabs` package. Because the data is available in the package, we can load it by simply using `data(gapminder)`. First we'll look at the dataset to see what it contains. We will use `summary()`, `head()` and `str()`.
+
+```{r, message=FALSE}
+# install.packages('dslabs') # Only run if you haven't installed dslabs
+library(dslabs)
+data(gapminder)
+df <- gapminder
+```
+
+```{r}
+summary(df)
+
+head(df)
+
+str(df)
+```
+
+1. What type of information do each one of these functions provide about our dataset?
+
+* `summary()` prints out summary statistics for each column
+* `head()` prints out the first 6 rows of the data frame.
+* `str()` prints out an overview of the object and the elements it contains
+
+2. How is the dataset ordered?
+
+* The data is ordered alphabetically by country and chronologically by year.
+
+3. What range of years does our dataset contain?
+
+* 1960 - 20216
+
+
+### Ordering and subsetting our dataset
+
+We can subset our dataset in different ways. For example, the brute-force approach: we can select the cell in row 1, column 3 using `gapminder[1,3]`. We can also select a range of rows using `:`; i.e., we can select rows 2 to 5, column 1 using `gapminder[2:5,1]`.
+
+```{r}
+# Subsetting via numeric indexes
+
+gapminder[1,3] # Select row 1, column 3
+
+gapminder[2:5,1] # Select rows 2-5, column 3
+
+gapminder[c(1,3,5), c(1,3,5)] # Select rows 1,3,5 columns 1,3,5
+
+gapminder[1,] # entire first row, all columns (note we still need comma)
+
+head(gapminder[,1]) # entire first column, all rows (note we still need comma)
+```
+
+
+4. In general, selecting rows and columns via numeric indices may not always be the best idea. What are some disadvantages you can think of?
+
+* The indices could change if your dataset changes. 
+* Numeric indices might not be intuitive for other people reading your code or your future self when looking back at the code. 
+
+Another way to select columns is with a vector of column names:
+
+```{r}
+# Select a subset of columns with a character vector
+head(gapminder[, c('country', 'year', 'infant_mortality')])
+```
+
+
+### Filtering rows with a logical
+
+A logical is just a vector of TRUE and FALSE values. Let's look first at a simple example of a vector, before moving to our full dataset.
+
+```{r}
+# Save the numbers 1-10
+a <- 1:10
+
+# Logical comparisons
+a < 3 # Values < 3 will be TRUE, otherwise FALSE
+
+a <= 2 | a > 8 # Values <=2 OR > 8 will be TRUE, otherwise FALSE
+
+a >= 3 & a <= 7 # Values >= 3 AND <= 7 will be TRUE, otherwise FALSE
+
+# Subsetting a via logical comparisons
+# Just returns the elements that are true
+a[a < 3]
+a[a <= 2 | a > 8]
+a[a >= 3 & a <= 7]
+```
+
+
+Now let's go back to the `gapminder` dataset. Filter the dataset to only observations (rows) for the United States, and only the `country`, `year`, and `infant_mortality` columns.
+
+```{r}
+# Filter to just the United States
+gapminder[gapminder$country == 'United States',]
+
+# Combine Filter + Subset the columns
+gapminder[gapminder$country == 'United States', c('country', 'year', 'infant_mortality')]
+```
+
+What happens with NAs? We see that `infant_mortality` has `NA` values:
+
+```{r}
+head(gapminder[gapminder$infant_mortality > 10,])
+```
+
+When we do this, we see that values where infant mortality are `NA` are kept. We can get around this by using the function `which()`. The `which()` function returns the index of rows in a data frame that meet a certain criteria. For example, if we want to know the index of the rows for Algeria, we can type the following:
+
+```{r}
+which(gapminder$country == "Algeria")
+```
+
+We can use this to select rows within our data frame by using square brackets `[ ]` and placing our `which()` function where we would place the row number.
+
+```{r}
+head(gapminder[which(gapminder$country == "Algeria"), ])
+
+head(gapminder[which(gapminder$country == "Algeria"), "infant_mortality"])
+```
+
+Now, let's use this to filter rows without NA values.
+
+```{r}
+ind <- which(gapminder$infant_mortality > 10)
+head(gapminder[ind,])
+```
+
+
+5. Create a data frame called `algeriagdp` that includes only year and GDP data for Algeria.
+
+```{r}
+algeriagdp <- gapminder[gapminder$country == 'Algeria', c('year', 'gdp')]
+head(algeriagdp)
+```
+
+
+### Ordering Data
+
+The function order returns the numeric indices needed to sort the data.
+
+```{r}
+a <- c(1,3,5,2,4,8)
+b <- c('apple', 'orange', 'banana', 'pear', 'grape', 'lemon')
+
+# Sort a
+sort(a)
+
+order(a) # order in which to get the elements of a so that it is sorted
+a[order(a)] # equivalent to sort
+b[order(a)] # sort b by a
+```
+
+Let's try it on the `gapminder` dataset.
+
+```{r}
+# Application to the data frame
+head(gapminder[order(gapminder$infant_mortality),])
+head(gapminder[order(gapminder$life_expectancy, decreasing = T),])
+```
+
+6. Create a data frame called `df2` that is ordered so that it shows the data for each country (all years), then the next country (all years), etc.
+
+```{r}
+df2 <- gapminder[order(gapminder$infant_mortality),]
+head(df2)
+```
+
+
+### Creating new data
+
+Lastly, we will look at creating new data or editing data.
+
+7. Create a new column of GDP per capita.
+
+```{r}
+# Make a new column
+# GDP/Population = gdp per capita
+gapminder$gdp_per_capita <- gapminder$gdp/gapminder$population
+```
+
+8. Transform `country` from a factor variable to a character variable. Then rename `United States` to `USA`.
+
+```{r}
+# Make country a character (not factor) and then rename United States to USA
+gapminder$country_chr <- as.character(gapminder$country)
+gapminder$country_chr[gapminder$country_chr == 'United States'] <- 'USA'
+```
+
+
+---
+
+## Part 2: Tidyverse
+
+Now, we will do the same types of operations but using the tidyverse functions.
+
+We can use the `filter()` function to select rows according to values of a column, and we can use `select()` to select only specific columns according to their name. If we want a specific set of rows, we can use `slice()`.
+
+```{r, warning = F, message = F}
+library(dplyr)
+```
+
+First, let's use `filter()`. Notice that we don't need to use `df$` in front of the names, since we supply `df` as the first argument to the function.
+
+```{r}
+# Filter
+head(filter(df, country == 'United States'))
+head(df[df$country == 'United States',])
+
+# Notice that filter automatically throws out NA -- no need for which()!
+head(filter(df, infant_mortality < 10))
+head(df[df$infant_mortality < 10,])
+
+# Multiple combinations
+head(filter(df, infant_mortality < 10 | life_expectancy > 80))
+```
+
+1. How many rows have `infant_mortality > 20` and `life_expectancy > 70`?
+
+```{r}
+# If no NAs, these 2 things behave the same
+# If NAs in one of these conditions, filter throws them out
+# Base R returns rows where condition is TRUE and NA
+
+df_problem1 <- filter(df, infant_mortality > 20, life_expectancy > 70)
+nrow(df_problem1)
+
+df_friend <- df[df$infant_mortality > 20 & df$life_expectancy > 70,]
+nrow(df_friend)
+
+### which() throws out NA
+df_friend <- df[which(df$infant_mortality > 20 & df$life_expectancy > 70),]
+nrow(df_friend)
+```
+
+
+Next we can use `select()` to get column names. `select()` doesn't require that we use quotes around names.
+
+```{r}
+# Select 3 columns (quotes work fine but not required)
+head(select(df, country, year, infant_mortality))
+head(select(df, 'country', 'year', 'infant_mortality'))
+
+# Select everything except the region column
+head(select(df, -region))
+```
+
+```{r}
+### 1st row of df
+slice(df, 1)
+
+### rows 20-50 
+slice(df, 20:50)
+```
+
+
+We can also order a data frame using the `arrange()` function.
+
+```{r}
+# Default is increasing
+head(arrange(df, infant_mortality))
+head(df[order(df$infant_mortality),]) # this is a little ugly
+
+# Use desc() for decreasing
+head(arrange(df, desc(infant_mortality)))
+head(df[order(df$infant_mortality, decreasing = T),]) # even more ugly
+
+# Sort by continent, then region
+head(arrange(df, continent, region))
+head(df[order(df$continent, df$region),]) # even more ugly
+
+
+# First sort by continent [A-Z] then in descending order of infant mortality rate
+df4 <- arrange(df, continent, desc(infant_mortality)) # much prettier/simpler!
+```
+
+2. Create a dataset that includes country, year, gdp and population for countries in South-Eastern Asia between 1965 and 2010. Order the data frame by country, then year. Confirm that your code is doing what it's supposed to.
+
+```{r}
+# Subset Rows
+df_complex <- filter(df, region == 'South-Eastern Asia')
+
+# Subset Columns
+df_complex <- select(df_complex, country, year, gdp, population)
+
+# Order Result
+df_complex <- arrange(df_complex, country, year)
+head(df_complex[order(df_complex$country, df_complex$year),])
+```
+
+
+### The pipe operator `%>%`
+
+To generate the result above, you may have needed multiple steps or lines of code. We can use the pipe operator `%>%` to avoid using some of the intermediate steps and to cut down on the amount of code we need to type. This makes for much more intuitive and fun data wrangling.
+
+For example, we can create the data frame mentioned above in an elegant, intuitive way:
+
+```{r}
+algeriagdp <- gapminder %>% 
+  filter(country == 'Algeria') %>% 
+  select(gdp, year)
+
+# One way
+x <- filter(gapminder, country == 'Algeria')
+head(select(x, gdp, year))
+
+# Another way (hard to read)
+head(select(filter(gapminder, country == 'Algeria'), gdp, year))
+
+```
+
+3. Now, using the pipe operator, create a dataset that includes `country`, `year`, `gdp` and `population` for countries in South-Eastern Asia between 1965 and 2010. Order the data frame by `country`, then `year`. Try to do it all in one command, starting from the `gapminder` dataset and using the pipe operator. Confirm that your code is doing what it's supposed to by printing out the result.
+
+```{r}
+# Subset rows
+df_complex <- filter(df, region == 'South-Eastern Asia')
+
+# Subset columns
+df_complex <- select(df_complex, country, year, gdp, population)
+
+# Order result
+df_complex <- arrange(df_complex, country, year)
+
+# Same result!
+df_complex <- gapminder %>% 
+  filter(region == 'South-Eastern Asia') %>% 
+  select(country, year, gdp, population) %>% 
+  arrange(country, year)
+```
+
+### Creating variables
+
+We can create variables using the function `mutate()`.
+
+```{r}
+gapminder <- mutate(gapminder, 'gdp_per_capita' = gdp/population)
+
+# Same thing but using the pipe
+gapminder <- gapminder %>% 
+  mutate('gdp_per_capita' = gdp/population)
+```
+
+4. Create a variable with the approximate number of women in the population. Assume that 52% of the population are women.
+
+```{r}
+gapminder <- mutate(gapminder, 
+                    'n_women' = 0.52 * population,
+                    'n_men' = 0.48 * population)
+```
+
+5. Calculate an approximation of the number of children born each year based on the `fertility` column, which displays the expected number of children per woman over their reproductive life. For this, assume an average reproductive life of 25 years.
+
+```{r}
+gapminder <- gapminder %>% 
+  mutate('children_per_year' = fertility * n_women/25)
+```
+
+--- 
+
+You can find a list of our spells... ehhhm, functions [here](https://rstudio.github.io/cheatsheets/data-transformation.pdf).
+
+
+And a list of other useful spellbooks (cheat sheets) [here](https://posit.co/resources/cheatsheets/). 
+
