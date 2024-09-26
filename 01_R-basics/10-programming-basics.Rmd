@@ -190,7 +190,7 @@ It turns out that we rarely use for loops in R. This is because there are usuall
 
 
 
-### Assessments
+### Self-Assessment Questions
 
 
 1. What will this conditional expression return?

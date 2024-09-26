@@ -70,4 +70,4 @@ dat <- dat %>% mutate(region = as.factor(region))
 head(dat)
 ```
 
-
+**Advanced note:** `require()` and `library()` are both used to load needed packages, but if a package is needed and not installed, `require()` will print a warning and continue running code, but `library()` will print an error and not run any code. 

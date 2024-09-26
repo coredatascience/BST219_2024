@@ -397,35 +397,33 @@ file.copy(filename, &quot;murders.csv&quot;)</code></pre>
 <p>You should be able to see the file in your working directory and can
 check using</p>
 <pre class="r"><code>list.files()</code></pre>
-<pre><code>##  [1] &quot;00-intro-to-rmarkdown.html&quot;                      
-##  [2] &quot;00-intro-to-rmarkdown.Rmd&quot;                       
-##  [3] &quot;01-motivation.html&quot;                              
-##  [4] &quot;01-motivation.Rmd&quot;                               
-##  [5] &quot;02-data-types.html&quot;                              
-##  [6] &quot;02-data-types.Rmd&quot;                               
-##  [7] &quot;03-vectors.html&quot;                                 
-##  [8] &quot;03-vectors.Rmd&quot;                                  
-##  [9] &quot;04-sorting.html&quot;                                 
-## [10] &quot;04-sorting.Rmd&quot;                                  
-## [11] &quot;05-vector-arithmetic.html&quot;                       
-## [12] &quot;05-vector-arithmetic.Rmd&quot;                        
-## [13] &quot;06-indexing-assessments-solutions.html&quot;          
-## [14] &quot;06-indexing-assessments-solutions.Rmd&quot;           
-## [15] &quot;06-indexing.html&quot;                                
-## [16] &quot;06-indexing.Rmd&quot;                                 
-## [17] &quot;07-basic-data-wrangling.html&quot;                    
-## [18] &quot;07-basic-data-wrangling.Rmd&quot;                     
-## [19] &quot;08-basic-plots.html&quot;                             
-## [20] &quot;08-basic-plots.Rmd&quot;                              
-## [21] &quot;09-importing-data.html&quot;                          
-## [22] &quot;09-importing-data.Rmd&quot;                           
-## [23] &quot;10-programming-basics-assessments-solutions.html&quot;
-## [24] &quot;10-programming-basics-assessments-solutions.Rmd&quot; 
-## [25] &quot;10-programming-basics.html&quot;                      
-## [26] &quot;10-programming-basics.Rmd&quot;                       
-## [27] &quot;murders.csv&quot;                                     
-## [28] &quot;notes_intro-to-r.pdf&quot;                            
-## [29] &quot;README.md&quot;</code></pre>
+<pre><code>##  [1] &quot;00-intro-to-rmarkdown_personal.Rmd&quot;    
+##  [2] &quot;00-intro-to-rmarkdown.html&quot;            
+##  [3] &quot;00-intro-to-rmarkdown.Rmd&quot;             
+##  [4] &quot;01-motivation.html&quot;                    
+##  [5] &quot;01-motivation.Rmd&quot;                     
+##  [6] &quot;02-data-types_personal.html&quot;           
+##  [7] &quot;02-data-types_personal.Rmd&quot;            
+##  [8] &quot;02-data-types.html&quot;                    
+##  [9] &quot;03-vectors.html&quot;                       
+## [10] &quot;03-vectors.Rmd&quot;                        
+## [11] &quot;04-sorting.html&quot;                       
+## [12] &quot;04-sorting.Rmd&quot;                        
+## [13] &quot;05-vector-arithmetic.html&quot;             
+## [14] &quot;05-vector-arithmetic.Rmd&quot;              
+## [15] &quot;06-indexing-assessments-solutions.html&quot;
+## [16] &quot;06-indexing-assessments-solutions.Rmd&quot; 
+## [17] &quot;06-indexing.html&quot;                      
+## [18] &quot;06-indexing.Rmd&quot;                       
+## [19] &quot;07-basic-data-wrangling.html&quot;          
+## [20] &quot;07-basic-data-wrangling.Rmd&quot;           
+## [21] &quot;08-basic-plots.html&quot;                   
+## [22] &quot;08-basic-plots.Rmd&quot;                    
+## [23] &quot;09-importing-data.html&quot;                
+## [24] &quot;09-importing-data.Rmd&quot;                 
+## [25] &quot;10-programming-basics.html&quot;            
+## [26] &quot;10-programming-basics.Rmd&quot;             
+## [27] &quot;murders.csv&quot;</code></pre>
 </div>
 <div id="read.csv" class="section level3">
 <h3><code>read.csv</code></h3>
@@ -467,6 +465,11 @@ head(dat)</code></pre>
 ## 4   Arkansas  AR  South    2915918    93
 ## 5 California  CA   West   37253956  1257
 ## 6   Colorado  CO   West    5029196    65</code></pre>
+<p><strong>Advanced note:</strong> <code>require()</code> and
+<code>library()</code> are both used to load needed packages, but if a
+package is needed and not installed, <code>require()</code> will print a
+warning and continue running code, but <code>library()</code> will print
+an error and not run any code.</p>
 </div>
 </div>
 
