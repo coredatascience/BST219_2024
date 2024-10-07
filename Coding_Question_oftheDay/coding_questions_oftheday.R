@@ -82,9 +82,4 @@ library(dslabs)
 library(dplyr)
 data("us_contagious_diseases")
 
-data <- us_contagious_diseases %>%
-  filter(!state %in% c("Hawaii","Alaska"),
-         disease == "Measles") %>%
-  mutate(rate = (count / weeks_reporting) * 52 / (population / 100000))
-
 
