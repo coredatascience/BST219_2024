@@ -505,11 +505,17 @@ computes the average can be defined like this:</p>
 <pre class="r"><code>avg &lt;- function(x){
   s &lt;- sum(x)
   n &lt;- length(x)
-  s/n
-}</code></pre>
+  return(s/n)
+}
+
+x &lt;- c(1,2,3)
+avg(x)</code></pre>
+<pre><code>## [1] 2</code></pre>
 <p>Now <code>avg</code> is a function that computes the mean:</p>
 <pre class="r"><code>x &lt;- 1:100
-identical(mean(x), avg(x))</code></pre>
+avg(x)</code></pre>
+<pre><code>## [1] 50.5</code></pre>
+<pre class="r"><code>identical(mean(x), avg(x))</code></pre>
 <pre><code>## [1] TRUE</code></pre>
 <p><em>Note that variables defined inside a function are not saved in
 the workspace</em>. So while we use <code>s</code> and <code>n</code>
@@ -533,7 +539,22 @@ defined variable like this:</p>
 <pre class="r"><code>avg &lt;- function(x, arithmetic = TRUE){
   n &lt;- length(x)
   ifelse(arithmetic, sum(x)/n, prod(x)^(1/n))
-}</code></pre>
+}
+
+x &lt;- c(1,2,3)
+avg(x)</code></pre>
+<pre><code>## [1] 2</code></pre>
+<pre class="r"><code>avg(x, arithmetic = FALSE)</code></pre>
+<pre><code>## [1] 1.817121</code></pre>
+<pre class="r"><code>avg &lt;- function(x, arithmetic){
+  n &lt;- length(x)
+  ifelse(arithmetic, sum(x)/n, prod(x)^(1/n))
+}
+
+avg(x, arithmetic = TRUE)</code></pre>
+<pre><code>## [1] 2</code></pre>
+<pre class="r"><code>avg(x, arithmetic = FALSE)</code></pre>
+<pre><code>## [1] 1.817121</code></pre>
 <p>We will learn more about how to create functions through experience
 as we face more complex tasks.</p>
 </div>

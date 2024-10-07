@@ -94,14 +94,18 @@ As you become more experienced you will find yourself needeing to perform the sa
 avg <- function(x){
   s <- sum(x)
   n <- length(x)
-  s/n
+  return(s/n)
 }
+
+x <- c(1,2,3)
+avg(x)
 ```
 
 Now `avg` is a function that computes the mean:
 
 ```{r}
 x <- 1:100
+avg(x)
 identical(mean(x), avg(x))
 ```
 
@@ -126,6 +130,20 @@ avg <- function(x, arithmetic = TRUE){
   n <- length(x)
   ifelse(arithmetic, sum(x)/n, prod(x)^(1/n))
 }
+
+x <- c(1,2,3)
+avg(x)
+avg(x, arithmetic = FALSE)
+```
+
+```{r}
+avg <- function(x, arithmetic){
+  n <- length(x)
+  ifelse(arithmetic, sum(x)/n, prod(x)^(1/n))
+}
+
+avg(x, arithmetic = TRUE)
+avg(x, arithmetic = FALSE)
 ```
 
 We will learn more about how to create functions through experience as we face more complex tasks.

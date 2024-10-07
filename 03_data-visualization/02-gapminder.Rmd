@@ -200,7 +200,7 @@ When the points are regularly and densely spaced, as they are here, we create cu
 gapminder %>% filter(country == "United States") %>% 
   ggplot(aes(year, fertility)) +
   geom_line() +
-  geom_point() +
+  #geom_point() +
   xlab("Year") +
   ylab("Fertility (avg number of children per woman)")
 ```
@@ -819,7 +819,8 @@ gapminder %>% filter(year %in% present_year & !is.na(gdp) & !is.na(infant_mortal
     data = filter(gapminder, year %in% present_year & country %in% highlight)) +
   xlab("Dollars per day") +
   ylab("Infant survival rate") +
-  labs("Region")
+  labs("Region") +
+  scale_color_discrete(name = "Region")
 ```
 
 Specifically, we see that there is a large amount of variability. We see that countries from the same regions can be quite different and that countries with the same income can have different survival rates. For example, while on average, Sub-Saharan Africa had the worse health and economic outcomes, there is wide variability within that group. For example, note that Mauritius and Botswana are doing better than Angola and Sierra Leone with Mauritius comparable to Western countries.
