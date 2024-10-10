@@ -472,8 +472,8 @@ gapminder %>%
   geom_histogram(binwidth = 1, color = "black") +
   scale_x_continuous(trans = "log2") + 
   facet_grid(. ~ group)  +
-  xlab("Number of countries") +
-  ylab("Dollars per day")
+  ylab("Number of countries") +
+  xlab("Dollars per day")
 ```
 
 Now we are ready to see if the separation is worse today than it was 40 years ago. We do this by faceting by both region and year:
@@ -649,10 +649,10 @@ which make it appear as if there are the same number of countries in each group.
 
 To have the areas of these densities be proportional to the size of the groups, we can simply multiply the y-axis values by the size of the group. From the `geom_density` help file we see that the function computes a variable called `count` that does exactly this. We want this variable to be on the y-axis rather than the density.
 
-In ggplot we access these variables by surrounding `count` by `..` (two periods). So we will use the following mapping:
+In ggplot we access these variables by using `after_stat(count)`. So we will use the following mapping:
 
 ```{r, eval=FALSE}
-aes(x = dollars_per_day, y = ..count..)
+aes(x = dollars_per_day, y = after_stat(count))
 ```
 
 We can now create the desired plot by simply changing the mapping in the previous code chunk:
@@ -662,7 +662,7 @@ We can now create the desired plot by simply changing the mapping in the previou
 p <- gapminder %>% 
   filter(year %in% c(past_year, present_year) & country %in% country_list) %>%
   mutate(group = ifelse(region %in% west, "West", "Developing")) %>%
-  ggplot(aes(dollars_per_day, y = ..count.., fill = group)) +
+  ggplot(aes(dollars_per_day, y = after_stat(count), fill = group)) +
   scale_x_continuous(trans = "log2") +
   xlab("Dollars per day") +
   labs(fill = "Group")
@@ -707,7 +707,8 @@ We can now easily plot the densities for each. We use `color` and `size` to clea
 ```{r}
 p <- gapminder %>% 
     filter(year %in% c(past_year, present_year) & country %in% country_list) %>%
-  ggplot(aes(dollars_per_day, y = ..count.., fill = group, color = group)) +
+  ggplot(aes(dollars_per_day, y = after_stat(count), fill = group, color = group)) +
+  #ggplot(aes(dollars_per_day, y = ..count.., fill = group, color = group)) +
   scale_x_continuous(trans = "log2")
 
 p + geom_density(alpha = 0.2, bw = 0.75, size = 2) + facet_grid(year ~ .)
