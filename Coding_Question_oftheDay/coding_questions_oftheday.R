@@ -82,4 +82,25 @@ library(dslabs)
 library(dplyr)
 data("us_contagious_diseases")
 
+data <- us_contagious_diseases %>%
+  filter(!state %in% c("Hawaii","Alaska"),
+         disease == "Measles") %>%
+  mutate(rate = (count / weeks_reporting) * 52 / (population / 100000))
+
+
+#-------------------------------------------------------------------------------------------
+
+
+# 10/10/2024
+# Using the gapminder dataset, create a line graph of life_expectancy over time 
+# for the country Haiti. Make sure to include informative axis labels and a title.
+# There is a substantial decrease in life expectancy one year - look up the reason 
+# for this if you don't know it already. Add text to your plot with geom_text 
+# indicating the event that happened that year that had such a drastic impact on 
+# life expectancy.
+
+library(dslabs)
+library(dplyr)
+data("gapminder")
+
 
