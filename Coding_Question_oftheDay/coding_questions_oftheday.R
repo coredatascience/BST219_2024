@@ -103,4 +103,12 @@ library(dslabs)
 library(dplyr)
 data("gapminder")
 
+gapminder %>% filter(country == "Haiti") %>%
+  ggplot(aes(year, life_expectancy)) +
+  geom_line() +
+  geom_vline(xintercept = 2010, lty = 2, color = "blue") +
+  geom_text(aes(x = 2003, y = 34, label = "2010 Earthquake"), color = "blue") +
+  xlab("Year") +
+  ylab("Life Expectancy (Years)") +
+  ggtitle("Life expectancy in Haiti")
 
