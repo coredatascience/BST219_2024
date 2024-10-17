@@ -112,3 +112,80 @@ gapminder %>% filter(country == "Haiti") %>%
   ylab("Life Expectancy (Years)") +
   ggtitle("Life expectancy in Haiti")
 
+
+#-------------------------------------------------------------------------------------------
+
+
+# 10/15/2024
+
+# Using the murders dataset, create a plot of murder rates per 100,000 with 4 boxplots next 
+# to each other - one boxplot for each region. Order the boxplots by median rate
+# (you will need the reorder function for this). Make sure the boxplots are
+# different colors, the axes are informative, and you add a title. Remove the 
+# legend by adding this layer to your plot: guides(fill = "none")
+
+library(dslabs)
+library(dplyr)
+library(ggplot2)
+data("murders")
+
+murders %>% mutate(rate = total / population * 100000,
+                   region = reorder(region, rate, FUN = median)) %>%
+  ggplot(aes(x = region, y = rate, fill = region)) +
+  geom_boxplot() +
+  scale_x_discrete(aes(name = region)) +
+  xlab("Region") +
+  ylab("Murder rate per 100,000 persons") +
+  ggtitle("2010 Gun Murder Rates Across US Regions") +
+  guides(fill = "none") # removes legend since not needed here
+
+  
+
+#-------------------------------------------------------------------------------------------
+
+
+# 10/17/2024
+
+# Using the gapminder dataset, make a line graph of life expectancy over time.
+# Include one line per country, and another line with the global average life
+# expectancy. Be sure to label the global average line and to make it stick out
+# among the country-specific lines. Use the code below to calculate the global
+# average for each year.
+
+# Hints: 
+# 1. Use alpha to help make the global average line stick out.
+# 2. Use 2 geom_line layers. 
+
+library(dslabs)
+library(dplyr)
+library(ggplot2)
+data("gapminder")
+
+avg <- gapminder %>%
+  group_by(year) %>%
+  summarize(global_avg = mean(life_expectancy))
+
+gapminder %>% 
+  ggplot() +
+  geom_line(aes(x = year, y = life_expectancy, group = country), color = 'darkgrey', alpha = 0.4) +
+  geom_line(data = avg, mapping = aes(x = year, y = global_avg), linewidth = 1) +
+  xlab("Year") +
+  ylab("Life expectancy (Years)") +
+  ggtitle("Life expectancy across countries") +
+  annotate(geom = "text", x = 1970, y = 56, label = "Global average", fontface = "bold")
+  #geom_text(x = 1980, y = 55, label = "Global Average")
+
+
+# Heather was just curious :)
+gapminder_94 <- gapminder %>% filter(year == "1994")
+gapminder_94[which.min(gapminder_94$life_expectancy),] # Rwandan genocide
+
+gapminder_77 <- gapminder %>% filter(year == "1977")
+gapminder_77[which.min(gapminder_77$life_expectancy),] # Cambodian genocide
+
+
+
+
+
+
+
