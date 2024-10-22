@@ -185,6 +185,70 @@ gapminder_77[which.min(gapminder_77$life_expectancy),] # Cambodian genocide
 
 
 
+#-------------------------------------------------------------------------------
+
+# 10/22/2024
+
+# Using the gapminder dataset, create a categorical life expectancy variable
+# and add it to the gapminder dataset. Call this variable life_expectancy_category
+# and use the case_when function to create it. Life expectancy below 50 should be 
+# labeled "Low", life expectancy greater than or equal to 50 and less than 75 
+# should be labeled "Medium", and life expectancy greater than or equal to 75 
+# should be labeled "High".
+
+# Now, filter the dataset to only include observations from the year 1999, and 
+# create a bar chart of the 3 life expectancy categories. 
+
+# Bonus challenge: Reorder the bars so that they are in the order Low, Medium, High.
+# You can use whatever function you prefer or find online that works. 
+
+
+# Load necessary libraries
+library(dplyr)
+library(dslabs)
+library(ggplot2)
+
+# Load the gapminder dataset
+data("gapminder")
+
+# Use case_when to create a new variable 'life_expectancy_category'
+gapminder <- gapminder %>%
+  mutate(life_expectancy_category = case_when(
+    life_expectancy < 50 ~ "Low",
+    life_expectancy >= 50 & life_expectancy < 75 ~ "Medium",
+    life_expectancy >= 75 ~ "High"
+  ))
+
+# View the first few rows of the dataset
+head(gapminder)
+
+# Filter the dataset to the year 2015 and create a bar chart of life expectancy
+# (Here I'm using another way to set the x and y axis labels and the plot title)
+
+gapminder %>% filter(year == 1999) %>%
+  ggplot(aes(x = life_expectancy_category)) +
+  geom_bar(fill = "steelblue") +
+  labs(title = "Distribution of Life Expectancy Categories in 1999",
+       x = "Life Expectancy Category",
+       y = "Number of Countries")
+
+
+# Bonus challenge: Reorder the bars so that they are in the order Low, Medium, High.
+# I'm using the fct_relevel function from the forcats package. Install the package
+# if you haven't already before loading it. 
+
+# install.packages("forcats")
+library(forcats)
+
+gapminder %>% filter(year == 1999) %>%
+  mutate(life_expectancy_category = factor(life_expectancy_category, levels = c("Low", "Medium", "High"))) %>% # another way to do it
+  #mutate(life_expectancy_category = fct_relevel(life_expectancy_category, "Low", "Medium", "High")) %>%
+  ggplot(aes(x = life_expectancy_category)) +
+  geom_bar(fill = "steelblue") +
+  labs(title = "Distribution of Life Expectancy Categories in 1999",
+       x = "Life Expectancy Category",
+       y = "Number of Countries")
+
 
 
 
