@@ -1,0 +1,171 @@
+---
+title: "Creating and Exporting Tables"
+output:
+  html_document: default
+  pdf_document: default
+  word_document: default
+---
+
+## The `tableone` package
+
+Summary tables are essential in public health and medical research, particularly when reporting descriptive statistics of study populations. The **`tableone`** package in R simplifies the process of generating such tables. This lecture will guide you through the basics of creating summary tables, adding customizations like p-values, and exporting tables to formats suitable for scientific publications.
+
+We will use the [`NHANES`](https://cran.r-project.org/web/packages/NHANES/NHANES.pdf) dataset built-in to R, which contains health and demographic data, and go through step-by-step examples. The `NHANES` study is survey data collected by the US National Center for Health Statistics (NCHS). You can read more about the study online, but briefly, `NHANES` and `NHANESraw` each include 75 variables available for the 2009-2010 and 2011-2012 sample years. `NHANESraw` has 20,293 observations of these variables plus four additional variables that describe that sample weighting scheme employed. `NHANES` contains 10,000 rows of data resampled from `NHANESraw` to undo these oversampling effects. `NHANES` can be treated, for educational purposes, as if it were a simple random sample from the American population.
+
+### Step 1: Install and Load Necessary Packages and the NHANES dataset
+
+```{r, message=FALSE}
+# Install necessary packages (if not already installed)
+# install.packages("NHANES")
+# install.packages("tableone")
+# install.packages("flextable")  # For Word export
+# install.packages("kableExtra") # For LaTeX export
+
+# Load necessary libraries
+library(NHANES)
+library(tableone)
+library(flextable)
+library(kableExtra)
+library(ggplot2)
+library(dplyr)
+
+# Load the NHANES dataset
+data(NHANES)
+
+# View the first few rows of the dataset
+head(NHANES)
+```
+
+
+### Step 2: Create a Simple Summary Table
+
+The `tableone` package is an R package that makes the construction of "Table 1", i.e., patient baseline characteristics table commonly found in biomedical research papers, easier to generate and export to another document. The functions within `tableone` can summarize both continuous and categorical variables mixed within one table. Categorical variables can be summarized as counts and/or percentages. Continuous variables can be summarized in the "normal" way (means and standard deviations for normally distributed data) or the "nonnormal" way (medians and interquartile ranges for skewed data distributions).
+
+Let’s start by creating a **basic summary table** without any stratification or p-values. We'll summarize key variables like age, BMI, and blood pressure. There are a lot more variables we could include, but let's keep it simple for now. We can use the `CreateTableOne` function to produce the table. 
+
+- **Continuous Variables**: `Age`, `BMI`, `BPSysAve` (average systolic blood pressure).
+- **Categorical Variables**: `Gender`, `Education`.
+
+```{r}
+# Save continuous and categorical variables as lists (this will decrease the amount of code needed throughout the process)
+continuous_vars <- c("Age", "BMI", "BPSysAve")
+categorical_vars <- c("Gender", "Education")
+
+# Create a simple summary table
+# vars = list of variables (default is all variables if you do not specify)
+# factorVars = a list of factor or categorical variables
+table_simple <- CreateTableOne(vars = c(continuous_vars, categorical_vars), data = NHANES, factorVars = categorical_vars)
+
+# Print the simple table
+print(table_simple)
+```
+
+This produces a simple table with means and standard deviations for continuous variables and frequencies and percentages for categorical variables. This is the basic building block for more advanced tables.
+
+### Step 3: Stratify the Table by a Categorical Variable
+
+Now, let’s stratify the summary table by the `SmokeNow` variable (indicating current smoking status) to compare characteristics of smokers vs. non-smokers. We can do this by adding `strata = "SmokeNow"` to the `CreateTableOne` function. Once stratified, the default is to not keep the overall column values; if we want to keep that column in the table, we need to add `addOverall = TRUE` to the `CreateTableOne` function. 
+
+```{r}
+# Create a stratified summary table by smoking status
+table_stratified <- CreateTableOne(vars = c(continuous_vars, categorical_vars), strata = "SmokeNow", 
+                                   data = NHANES, factorVars = categorical_vars, addOverall = TRUE)
+
+# Print the stratified table
+print(table_stratified, showAllLevels = TRUE)
+```
+
+Note that **`showAllLevels = TRUE`** displays all levels of categorical variables (e.g., gender categories). Now that we are stratifying the table and have multiple groups, a p-value column is automatically added to the table indicating the p-value of a hypothesis test used to compare the groups according to that particular variable. For continuous, normally distributed data, t-tests and ANOVA tests are used. For continuous, skewed data, the Wilcoxon ranksum and Kruskal-Wallis tests are used. For discrete/categorical data (factors), the chi-squared or Fisher's exact test are used, depending on the cell counts (Fisher's exact test is used when not all of the cells have a value of 5 or more).
+
+To assess if the normality assumption holds for continuous variables, we need to plot the distributions of each variable for each group. 
+
+```{r}
+# Plot histograms for each continuous variable
+NHANES %>% ggplot(aes(x = BMI)) + 
+  geom_histogram(binwidth = 1, color = "black") + 
+  labs(title = "BMI Distribution")
+
+NHANES %>% ggplot(aes(x = Age)) + 
+  geom_histogram(binwidth = 3, color = "black") + 
+  labs(title = "Age Distribution")
+
+NHANES %>% ggplot(aes(x = BPSysAve)) + 
+  geom_histogram(binwidth = 5, color = "black") + 
+  labs(title = "Average Systolic BP Distribution")
+```
+
+`BMI` and `BPSysAve` are clearly not normally distributed, but `Age` is fairly close so we'll say it's normally distributed. 
+
+In the `tableone` package, we can specify which statistical tests to use for different variables. Let’s define:
+
+- **BMI**: Assume non-normally distributed (Wilcoxon test).
+- **Age**: Assume normally distributed (t-test).
+- **BPSysAve**: Assume non-normally distributed (Wilcoxon test).
+
+
+```{r}
+# Define continuous and categorical variables
+continuous_vars <- c("Age", "BMI", "BPSysAve")
+categorical_vars <- c("Gender", "Education")
+
+# Create a custom list of tests based on normality assumptions
+test_list <- list(
+  BMI = "wilcox.test",      # Non-normally distributed: Wilcoxon test
+  Age = "t.test",           # Normally distributed: t-test
+  BPSysAve = "wilcox.test"  # Non-normally distributed: Wilcoxon test
+)
+
+# Create the summary table stratified by smoking status with custom tests
+table_with_custom_tests <- CreateTableOne(
+  vars = c(continuous_vars, categorical_vars), 
+  strata = "SmokeNow", 
+  data = NHANES, 
+  factorVars = categorical_vars, 
+  test = TRUE, 
+  testExact = test_list,
+  addOverall = TRUE
+)
+
+print(table_with_custom_tests, showAllLevels = TRUE)
+```
+
+
+This is good, but the mean and standard deviation are still being displayed for the non-normal variables. We can get the median and interquartile range (IQR) to be displayed instead by using the `nonnormal` argument in the `print` function. Here I'm saving the non-normally distributed variables as a list called `nonNormalVars`. I'm also setting the number of decimal places to display with `pDigits = 3`.
+
+```{r}
+# Define list of non-normal variables
+nonNormalVars <- c("BMI", "BPSysAve")
+
+# Print the table with custom tests and p-values
+print(table_with_custom_tests, showAllLevels = TRUE, nonnormal = nonNormalVars, pDigits = 3)
+```
+
+
+### Step 4: Export the Table to Word
+
+Now, we’ll export the table to a Word document using the `flextable` package. We first have to convert our printed table to a data frame. 
+
+```{r}
+# Convert the printed table to a data frame
+table_with_custom_tests <- as.data.frame(print(table_with_custom_tests, showAllLevels = TRUE, nonnormal = nonNormalVars, pDigits = 3))
+
+# Convert the table to a flextable object
+table_word <- flextable(table_with_custom_tests)
+
+# Save the table as a Word document
+flextable::save_as_docx(table_word, path = "nhanes_summary_table.docx")
+```
+
+A Word document named `nhanes_summary_table.docx` will be saved to your working directory.
+
+### Important things to note
+
+* You can also save the table as a .csv file and then copy and paste that into a Word document. 
+* `CreateTableOne` automatically removes missing values of the stratified variable. For example, we started with 10,000 individuals in the overall NHANES sample (and can see n = 10,000 in the Overall column in the table), but that the total number of smokers and non-smokers sums to 3,211. All of the NAs were ignored when stratifying. This is the default behavior, but you can include the argument `includeNA = TRUE` to include missing values. 
+* You can also export the table to LaTeX using the `kableExtra` package. 
+* There are other packages you can use to create and export tables in RStudio, including `rempsyc`, `stargazer`, `gt`, etc. [Check out this resource for more](https://bookdown.org/yihui/rmarkdown-cookbook/table-other.html).
+* The `tableone` package has other functions that allow you to create tables for continuous variables only or categorical variables only. [Check out the documentation file](https://cran.r-project.org/web/packages/tableone/tableone.pdf). 
+* Another resource for `tableone` is [here](https://ehsanx.github.io/intro2R/data-summary-with-tableone.html).
+
+
+
