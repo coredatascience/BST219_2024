@@ -250,6 +250,86 @@ gapminder %>% filter(year == 1999) %>%
        y = "Number of Countries")
 
 
+#-------------------------------------------------------------------------------
 
+# 10/24/2024
 
+# Using the gapminder dataset, create a new data frame with only the country, 
+# year, life_expectancy, and fertility columns. Use the pivot_longer() function 
+# to reshape the dataset so that the life_expectancy and fertility columns are 
+# combined into a single value column called "value". The column names should be
+# stored in a new column called "health_indicator".
+
+# Load necessary libraries
+library(dslabs)
+library(tidyr)
+library(dplyr)
+
+# Load the gapminder dataset
+data("gapminder")
+
+# Select only a few columns for simplicity
+gapminder_subset <- gapminder %>%
+  select(country, year, life_expectancy, fertility)
+
+# Use pivot_longer to reshape the dataset
+gapminder_long <- gapminder_subset %>%
+  pivot_longer(cols = c(life_expectancy, fertility), 
+               names_to = "health_indicator", 
+               values_to = "value")
+
+# View the reshaped data
+head(gapminder_long)
+
+#-------------------------------------------------------------------------------
+
+# 10/29/2024
+
+# Using the murders dataset from the dslabs package and the state.x77 dataset
+# that is built in to R, make a scatterplot with the total number of gun murders
+# (total) on the y-axis and land area in square miles (Area) on the x-axis. You
+# will need to use the left_join function to join the state.x77 dataset to the 
+# murders dataset using the state column. 
+
+# Bonus challenge: are there any NAs in the merged dataset? How are they created?
+
+# Load necessary libraries
+library(dplyr)
+library(dslabs)
+library(ggplot2)
+library(tidyr)
+
+# Load the state.x77 dataset and convert to a data frame
+data("state")
+state_data <- as.data.frame(state.x77)
+
+# Add the state names to the state.x77 dataset
+state_data$state <- rownames(state_data)
+
+head(state_data)
+
+# Load the murders dataset from the dslabs package
+data("murders")
+
+# Use the left_join function to join the datasets by the state column
+merged_data <- left_join(murders, state_data, by = "state")
+
+# Plot area on x-axis and total number of murders on y-axis
+merged_data %>% ggplot(aes(x = Area, y = total)) +
+  geom_point() +
+  labs(x = "Land area in square miles",
+       y = "Total number of gun murders",
+       title = "Number of gun murders vs land area across the US states")
+
+# Bonus challenge
+# Are there any NAs in the merged data set?
+sum(is.na(merged_data)) # Yes, there are 8 NAs in the dataset
+
+# Locate the row with NAs
+merged_data[!complete.cases(merged_data),]
+
+# All of the NAs are in the District of Columbia row. All of the values from the
+# state.x77 dataset are missing. This means that the state.x77 dataset did not
+# contain a row for District of Columbia, which resulted in NA values when 
+# joined to the murders dataset.
 
