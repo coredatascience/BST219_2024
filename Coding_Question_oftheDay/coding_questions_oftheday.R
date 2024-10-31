@@ -337,6 +337,17 @@ merged_data[!complete.cases(merged_data),]
 
 # 10/31/2024
 
+# Using the gapminder dataset, first remove all rows with missing gdp data 
+# (code included below). Then, create 2 separate data frames: one containing 
+# data just from the year 1975 and one containing data just from the year 1995. 
+# Then create one dataset containing data about countries that appear in both 
+# the 1975 and 1995 datasets, and one dataset containing data from countries 
+# that only appear in the 1995 dataset.
+
+# Bonus challenge: Create a bar plot summarizing the number of countries on 
+# each continent that are in the dataset containing data about countries that 
+# only appear in the 1995 dataset.
+
 library(dplyr)
 library(dslabs)
 library(ggplot2)
