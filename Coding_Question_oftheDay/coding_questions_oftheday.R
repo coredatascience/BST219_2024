@@ -333,3 +333,52 @@ merged_data[!complete.cases(merged_data),]
 # contain a row for District of Columbia, which resulted in NA values when 
 # joined to the murders dataset.
 
+#-------------------------------------------------------------------------------
+
+# 10/31/2024
+
+library(dplyr)
+library(dslabs)
+library(ggplot2)
+library(tidyr)
+
+data("gapminder")
+
+# Drop all rows with NA (missing data) for gdp
+gapminder <- gapminder %>% drop_na(gdp)
+
+# Create a dataset with data just from the year 1975
+gapminder_1975 <- gapminder %>% filter(year == "1975")
+
+# Create a dataset with data just from the year 1995
+gapminder_1995 <- gapminder %>% filter(year == "1995")
+
+# Check how many rows are in each dataset
+dim(gapminder_1975)
+dim(gapminder_1995)
+
+# Use the inner_join function to keep data for countries common to both datasets
+common_to_both <- inner_join(gapminder_1975, gapminder_1995, by = "country")
+head(common_to_both)
+
+# Use the anti_join function to keep data for countries that appear in the 1995
+# dataset, but not the 1975 dataset
+just_in_1995 <- anti_join(gapminder_1995, gapminder_1975, by = "country")
+head(just_in_1995)
+
+# Bonus challenge: Create a bar plot summarizing the number of countries on 
+# each continent that are in the dataset we created using the anti_join function 
+
+just_in_1995 %>% ggplot(aes(x = fct_infreq(continent), fill = continent)) + # The fct_infreq function acts like the reorder function and reorders according to how many countries are on each continent
+  geom_bar(color = "black") +
+  labs(x = "", y = "Number of countries") +
+  coord_flip() + # Flip the x and y axes so the continent names are on the y axis and easier to read
+  guides(fill = "none") + # Remove the legend since it isn't needed
+  geom_text(aes(label = after_stat(count)), stat = "count", hjust = 1.5) # add number of countries at the end of each bar for easier/faster interpretation
+
+
+
+
+
+
+
