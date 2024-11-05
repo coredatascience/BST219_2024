@@ -388,6 +388,51 @@ just_in_1995 %>% ggplot(aes(x = fct_infreq(continent), fill = continent)) + # Th
   geom_text(aes(label = after_stat(count)), stat = "count", hjust = 1.5) # add number of countries at the end of each bar for easier/faster interpretation
 
 
+#-------------------------------------------------------------------------------
+
+# 11/5/2024
+
+# A link to a dataset available on GitHub was sent out in a Canvas announcement.
+# The data comes from the Johns Hopkins University COVID-19 data repository. 
+# This particular dataset is called "who_covid_19_sit_rep_time_series.csv" and 
+# contains reported COVID-19 case counts from countries around the globe from 
+# January 22, 2020 to March 23, 2020. 
+
+# Read in the data using the code provided in the Canvas announcement.
+# This dataset is currently in wide format. Convert the data frame to long format,
+# with a column named date and a column named cases. Then, make the date column
+# values into date objects. 
+
+# Bonus challenge: rename the Country/Region column country. Create a new data
+# frame with country name, date, and the total number of cases in the country on 
+# each day.
+
+library(readr)
+library(dplyr)
+library(tidyr)
+
+data <- read_csv("https://raw.githubusercontent.com/CSSEGISandData/COVID-19/refs/heads/master/archived_data/archived_time_series/time_series_19-covid-Recovered_archived_0325.csv")
+head(data)
+
+data_long <- data %>% 
+  pivot_longer("1/22/20":"3/23/20", names_to = "date", values_to = "cases") %>%
+  mutate(date = mdy(date))
+
+data_long_country <- data_long %>% 
+  rename(country = "Country/Region") %>% 
+  group_by(country, date) %>%
+  summarize(cases = sum(cases))
+
+
+
+
+
+
+
+
+
+
+
 
 
 
