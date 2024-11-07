@@ -424,7 +424,6 @@ data_long_country <- data_long %>%
   group_by(country, date) %>%
   summarize(cases = sum(cases))
 
-
 #-------------------------------------------------------------------------------
 
 # 11/7/2024
@@ -472,7 +471,7 @@ data_long_country <- data_long_country %>%
 # Calculate 7-day rolling average of new cases
 data_long_country <- data_long_country %>% 
   group_by(country) %>%
-  arrange(date) %>%  # Put rows in chronological order
+  arrange(date, .by_group=TRUE) %>%  # Put rows in chronological order
   mutate(new_cases_7dayavg = rollmean(new_cases, k = 7, fill = NA)) %>%
   ungroup()
 
