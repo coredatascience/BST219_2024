@@ -410,6 +410,7 @@ just_in_1995 %>% ggplot(aes(x = fct_infreq(continent), fill = continent)) + # Th
 library(readr)
 library(dplyr)
 library(tidyr)
+library(lubridate)
 
 data <- read_csv("https://raw.githubusercontent.com/CSSEGISandData/COVID-19/refs/heads/master/archived_data/archived_time_series/time_series_19-covid-Recovered_archived_0325.csv")
 head(data)
@@ -424,17 +425,56 @@ data_long_country <- data_long %>%
   summarize(cases = sum(cases))
 
 
+#-------------------------------------------------------------------------------
 
+# 11/7/2024
 
+# The data frame we created on Tuesday (11/5) contains a column called cases. 
+# The values of this column are the cumulative number of reported cases in a
+# particular country on a particular day. Use the lag function to add a new 
+# column to the data frame that is the number of new cases for each day. For 
+# example, if there were 10 reported cases on January 22nd and 15 reported cases 
+# on January 23rd, the number of new cases would be 5 (15-10). Name this column 
+# new_cases.
 
+# Bonus challenge: create a new column that contains the seven-day rolling 
+# average of new cases. Name this column new_cases_7dayavg. I would suggest
+# using the rollmean function from the zoo package. 
 
+# This code is from the 11/5 coding question of the day --------
+library(readr)
+library(dplyr)
+library(tidyr)
+library(lubridate)
 
+data <- read_csv("https://raw.githubusercontent.com/CSSEGISandData/COVID-19/refs/heads/master/archived_data/archived_time_series/time_series_19-covid-Recovered_archived_0325.csv")
+head(data)
 
+data_long <- data %>% 
+  pivot_longer("1/22/20":"3/23/20", names_to = "date", values_to = "cases") %>%
+  mutate(date = mdy(date))
 
+data_long_country <- data_long %>% 
+  rename(country = "Country/Region") %>% 
+  group_by(country, date) %>%
+  summarize(cases = sum(cases))
 
+# This is new code for today's coding question --------
+library(zoo)
 
+# Calculate new cases
+data_long_country <- data_long_country %>% 
+  group_by(country) %>%
+  arrange(date) %>% # Put rows in chronological order
+  mutate(new_cases = cases - lag(cases)) %>%
+  ungroup()
 
-
+# Calculate 7-day rolling average of new cases
+data_long_country <- data_long_country %>% 
+  group_by(country) %>%
+  arrange(date) %>%  # Put rows in chronological order
+  mutate(new_cases_7dayavg = rollmean(new_cases, k = 7, fill = NA)) %>%
+  ungroup()
 
 
 
