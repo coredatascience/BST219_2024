@@ -476,4 +476,91 @@ data_long_country <- data_long_country %>%
   ungroup()
 
 
+#-------------------------------------------------------------------------------
+
+# 11/12/2024
+
+# Using the gapminder dataset and the world map data frame in the maps package, 
+# plot the 2016 life expectancy across countries. Note that you will need to 
+# join the two data frames, and that the region column in the world map data
+# corresponds to the country column in the gapminder data.
+
+# Bonus challenge: why are some of the countries gray? Give 2 reasons.
+
+library(dplyr)
+library(ggplot2)
+library(tidyr)
+library(dslabs)
+library(maps)
+
+# Read in gapminder data and save world map data as a data frame
+data("gapminder")
+world_map <- map_data("world")
+
+# Filter to only include data from the year 2016
+gapminder_life <- gapminder %>% filter(year == "2016") %>%
+  select(country, life_expectancy) # Optional: I do this to keep only the columns I need
+
+# Join the two data frames
+full_df <- left_join(world_map, gapminder_life, by = c("region" = "country"))
+
+# Create a world map plot with countries filled in based on their life expectancy
+full_df %>% ggplot(aes(x = long, y = lat, group = group, fill = life_expectancy)) +
+  geom_polygon(color = "white") +
+  theme(panel.grid.major = element_blank(), # Remove gray background and grid and axis lines
+        panel.background = element_blank(),
+        axis.title = element_blank(), 
+        axis.text = element_blank(),
+        axis.ticks = element_blank()) + 
+  scale_fill_viridis_c(name = "Life Exp. \n(years)", option = "inferno") + # Another option for color scale
+  labs(title = "Global Life Expectancy in 2016") +
+  coord_fixed(1.3)
+
+
+# Some of the countries are gray because we either don't have data in the gapminder 
+# dataset for those countries, or because the names of those countries don't 
+# match for the maps data and gapminder data, or both. For example, in the gapminder 
+# dataset, the United States is labeled as "United States", but in the maps 
+# dataset it is labeled as "US". 
+
+# The countries that are missing life expectancy data in the gapminder dataset
+# include Somalia, Congo, Western Sahara, Afghanistan, Kyrgyzstan, Myanmar (Burma),
+# North Korea, and French Guiana.
+
+# To fix the problem with mismatching country names, we can use the case_when() 
+# function. Here we use it to rename the countries in the gapminder dataset so
+# they match the names of the countries in the world map data frame.
+
+gapminder_life <- gapminder %>% 
+  filter(year == "2016") %>%
+  mutate(country = case_when(country == "United States" ~ "USA",
+                             country == "United Kingdom" ~ "UK",
+                             country == "Lao" ~ "Laos",
+                             country == "Congo, Dem. Rep." ~ "Democratic Republic of the Congo",
+                             country == "Cote d'Ivoire" ~ "Ivory Coast",
+                             TRUE ~ country))
+
+full_df <- left_join(world_map, gapminder_life, by = c("region" = "country"))
+
+full_df %>% ggplot(aes(x = long, y = lat, group = group, fill = life_expectancy)) +
+  geom_polygon(color = "white") +
+  theme(panel.grid.major = element_blank(), 
+        panel.background = element_blank(),
+        axis.title = element_blank(), 
+        axis.text = element_blank(),
+        axis.ticks = element_blank()) + 
+  scale_fill_viridis_c(name = "Life Exp. \n(years)", 
+                       option = "inferno") + 
+  labs(title = "Global Life Expectancy in 2016") +
+  coord_fixed(1.3)
+
+
+#-------------------------------------------------------------------------------
+
+
+
+
+
+
+
 
