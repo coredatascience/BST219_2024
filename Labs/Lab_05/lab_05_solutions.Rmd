@@ -142,7 +142,7 @@ test_set$pred_label_text_LR <- ifelse(test_set$prob_malignant_LR > 0.5, 'Maligna
 
 ```{r}
 # Print confusion matrix
-confusionMatrix(data = as.factor(test_set$pred_label_text), 
+confusionMatrix(data = as.factor(test_set$pred_label_text_LR), 
                 reference = test_set$labels, 
                 positive = "Malignant")
 ```
