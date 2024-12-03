@@ -563,4 +563,3 @@ full_df %>% ggplot(aes(x = long, y = lat, group = group, fill = life_expectancy)
 
 
 
-
