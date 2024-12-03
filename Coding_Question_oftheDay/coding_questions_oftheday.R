@@ -611,5 +611,34 @@ confusionMatrix(data = as.factor(y_hat_logit),
 # Sensitivity : 0.9429          
 # Specificity : 0.8500 
 
+## With text categories
+
+data(gapminder)
+set.seed(9)
+
+gapminder_1970 <- gapminder %>% 
+  filter(year == 1970) %>%
+  mutate(fertility_cat = as.factor(ifelse(fertility <= 4, "Low", "High")))
+
+y <- gapminder_1970$fertility_cat
+
+train_index <- createDataPartition(y, times = 1, p = 0.7, list = FALSE) # Partition data 
+
+train_set <- gapminder_1970[train_index, ] # Create training set
+test_set <- gapminder_1970[-train_index, ] # Create test set
+
+# Fit logistic regression model
+glm_fit <- glm(fertility_cat ~ life_expectancy, data = train_set, family = "binomial")
+
+# Calculate predicted probabilities
+p_hat_logit <- predict(glm_fit, newdata = test_set, type="response")
+
+# Create predictions of "low" or "high" fertility using 0.5 probability cutoff
+# (if predicted probability is > 0.5, predict "high")
+y_hat_logit <- ifelse(p_hat_logit > 0.5, "Low", "High")
+
+# Print confusion matrix to view evaluation metrics
+confusionMatrix(data = as.factor(y_hat_logit), 
+                reference = as.factor(test_set$fertility_cat), positive = 'High')
 
 
