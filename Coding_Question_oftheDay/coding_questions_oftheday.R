@@ -586,7 +586,30 @@ train_index <- createDataPartition(y, times = 1, p = 0.7, list = FALSE) # Partit
 train_set <- gapminder_1970[train_index, ] # Create training set
 test_set <- gapminder_1970[-train_index, ] # Create test set
   
+# Fit logistic regression model
+glm_fit <- glm(fertility_cat ~ life_expectancy, data = train_set, family = "binomial")
 
+# Calculate predicted probabilities
+p_hat_logit <- predict(glm_fit, newdata = test_set, type="response")
+
+# Create predictions of "low" or "high" fertility using 0.5 probability cutoff
+# (if predicted probability is > 0.5, predict "high")
+y_hat_logit <- ifelse(p_hat_logit > 0.5, 1, 0)
+
+# Print confusion matrix to view evaluation metrics
+confusionMatrix(data = as.factor(y_hat_logit), 
+                reference = as.factor(test_set$fertility_cat), positive = '1')
+
+# Confusion Matrix and Statistics
+
+# Reference
+# Prediction  0  1
+#  0          17 2
+#  1          3 33
+
+# Accuracy : 0.9091          
+# Sensitivity : 0.9429          
+# Specificity : 0.8500 
 
 
 
