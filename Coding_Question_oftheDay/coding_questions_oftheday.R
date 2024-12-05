@@ -642,3 +642,38 @@ confusionMatrix(data = as.factor(y_hat_logit),
                 reference = as.factor(test_set$fertility_cat), positive = 'High')
 
 
+#-------------------------------------------------------------------------------
+# 12/5/2024
+
+# Same setup as 12/3 question of the day, but new model.
+
+# Using the gapminder dataset, fit a QDA ML model that predicts 
+# fertility (low vs high) using life expectancy as a predictor and data from the 
+# year 1970 only. Print the confusion matrix and report the overall accuracy, 
+# sensitivity, and specificity. 
+
+# The code that categorizes fertility into low (fertility <= 4) and high 
+# (fertility > 4) groups, with 0 indicating low fertility and 1 high fertility, 
+# has been provided. The training and test sets using 70% of the data for the 
+# training set and 30% for the test set have also been coded for you.
+
+library(dplyr)
+library(ggplot2)
+library(caret)
+library(dslabs)
+library(MASS)
+
+data(gapminder)
+set.seed(9)
+
+gapminder_1970 <- gapminder %>% 
+  filter(year == 1970) %>%
+  mutate(fertility_cat = ifelse(fertility <= 4, 0, 1))
+
+y <- gapminder_1970$fertility_cat
+
+train_index <- createDataPartition(y, times = 1, p = 0.7, list = FALSE) # Partition data 
+
+train_set <- gapminder_1970[train_index, ] # Create training set
+test_set <- gapminder_1970[-train_index, ] # Create test set
+
