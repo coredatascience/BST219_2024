@@ -1,0 +1,99 @@
+---
+title: 'Lab 6: Machine Learning II'
+output:
+  html_document
+---
+
+## kNN, LDA, and QDA for Binary Classification
+This lab will focus on kNN, QDA, LDA, and ROC curves.
+
+```{r, message=FALSE, warning=FALSE}
+library(tidyverse)
+library(mvtnorm)
+library(caret)
+library(MASS)
+library(pROC)
+```
+
+In this section, we simulate a dataset that has 200 observations from Class 0 and 200 observations from Class 1. The class labels are stored in the variable Y. There are also two predictor variables, X1 and X2. When an observation is from Class 0, X1 and X2 are drawn from a bivariate normal distribution with mean $\mu_0 = \left( \begin{array}{c} 3 \\ 2 \end{array} \right)$ and covariance matrix $\Sigma = \left( \begin{array}{cc} 1 & 0.5 \\ 0.5 & 1 \end{array} \right)$. When an observation is from Class 1, X1 and X2 are drawn from a bivariate normal distribution with mean $\mu_1 = \left( \begin{array}{c} 4 \\ 4 \end{array} \right)$ and the same covariance matrix $\Sigma = \left( \begin{array}{cc} 1 & 0.5 \\ 0.5 & 1 \end{array} \right)$. 
+
+In slightly less technical terms, this means that when an observation is from Class 0, X1 is normally distributed with mean 3 and standard deviation 1; X2 is normally distributed with mean 2 and standard deviation 1; and the two predictors have a moderately positive correlation. When an observation is from Class 1, X1 and X2 are still normally distributed with the same correlation structure as in Class 0, but their means are 4 instead. 
+
+```{r}
+# Means for two classes
+mu0 = c(3, 2)
+mu1 = c(4, 4)
+
+# Shared covariance matrix
+Sigma = matrix(c(1, 0.5, 0.5, 1), nrow = 2)
+
+# Simulate 200 observations from each class and create vector of labels
+set.seed(1)
+sim_dat = data.frame(Y = factor(rep(c(0, 1), each = 200)), 
+                     rbind(mvrnorm(200, mu0, Sigma), 
+                           mvrnorm(200, mu1, Sigma)))
+
+# Take a peek at the simulated data
+head(sim_dat)
+```
+
+### Question 1
+Use the `createDataPartition` function from the `caret` package to split the data into training and test sets (50% training and 50% test). Be sure to set a random seed so that your code is reproducible (the solutions use `set.seed(4)`). Visualize the training observations by making a scatterplot of X2 against X1 and coloring the points by Y. Comment on what you see. 
+
+### Question 2
+Use the k-Nearest Neighbors (kNN) algorithm with k=1 neighbors to model Y based on X1 and X2 in the training data. You can use the `knn3` function from the `caret` package. Save the output from `knn3` as `fit_knn1`. Then, run kNN with k=15 neighbors and save your model as `fit_knn15`. For each model, obtain the predicted probabilities of belonging in Class 1 for the observations in the test set. 
+
+### Question 3
+Use the `lda` and `qda` functions from the `MASS` package to fit linear discriminant analysis (LDA) and quadratic discriminant analysis (QDA) models to the training data. Save your models as `fit_lda` and `fit_qda`, respectively. Both X1 and X2 should be included as predictors. For each model, obtain the predicted probabilities of belonging in Class 1 for the observations in the test set. 
+
+### Question 4
+Using the `pROC` package and the predicted probabilities from the four models that you fit in Q2-3, plot and interpret the receiver operating characteristic (ROC) curves based on the test set. Also, report the area under the curve (AUC) for each of the four models. 
+
+### Question 5
+The code below plots the test set data, as well as decision boundaries calculated from the `fit_knn`, `fit_knn15`, `fit_lda`, and `fit_qda` models that you built in Q2-3. To run, remove the `eval = FALSE` option from the code chunk header. Discuss how the assumptions of the models and the data-generating process are reflected in the shapes of the decision boundaries. 
+
+
+### Question 5
+The code below plots the test set data, as well as decision boundaries calculated from the `fit_knn`, `fit_knn15`, `fit_lda`, and `fit_qda` models that you built in Q2-3. To run, remove the `eval = FALSE` option from the code chunk header. Discuss how the assumptions of the models and the data-generating process are reflected in the shapes of the decision boundaries. 
+
+```{r}
+# Create a grid of X1 and X2 values that span the space of the test set
+grid <- expand.grid(seq(min(sim_test_set$X1), 
+                        max(sim_test_set$X1), length=200), 
+                    seq(min(sim_test_set$X2), 
+                        max(sim_test_set$X2), length=200))
+colnames(grid) <- c("X1", "X2")
+
+# Predict class labels on all values in the grid for each model
+boundary_df <- 
+  data.frame(
+    grid, 
+    knn1 = predict(fit_knn1, newdata = grid, type="class"), 
+    knn15 = predict(fit_knn15, newdata = grid, type="class"), 
+    lda = predict(fit_lda, newdata = grid)$class, 
+    qda = predict(fit_qda, newdata = grid)$class
+  )
+
+# Scatterplot of test set observations
+# Overlay contour plot to draw decision boundaries
+df_contours <- 
+  boundary_df %>% 
+  pivot_longer(cols = c(knn1, knn15, lda, qda),
+               names_to = 'model',
+               values_to = 'pred')
+
+df_plot <- 
+  bind_rows(
+    sim_test_set %>% mutate('dataset' = 'Test'),
+    sim_train_set %>% mutate('dataset' = 'Train')
+  )
+
+ggplot(df_plot) + 
+  facet_wrap(~dataset) + 
+  geom_point(aes(x = X1, y = X2, shape = Y)) +
+  stat_contour(data = df_contours, aes(x = X1, y = X2, z = as.numeric(pred), color = model), 
+               lwd = 1, breaks=c(1, 2, 3)) + 
+  scale_shape_manual(values = c(16, 3)) +
+  scale_color_discrete(name = "Model", 
+                       labels = c("kNN (k=1)", "kNN (k=15)", "LDA", "QDA"))
+```
