@@ -1,0 +1,226 @@
+---
+title: 'Lab 7: Machine Learning III'
+output:
+  html_document
+---
+
+## 1. Regression and Decision Trees for Continuous Outcomes
+
+Before we begin, make sure that all of the following packages are installed on your computer: 
+
+- `caret` 
+- `dslabs` 
+- `GGally` 
+- `MASS` 
+- `pROC` 
+- `randomForest` 
+- `tidyverse` 
+- `tree`
+
+In this part of the lab, we will predict infant birth weight using the `birthwt` dataset, available in the `MASS` package. This dataset of 189 observations was  collected at the Baystate Medical Center in Springfield, MA during 1986. It includes the following variables: 
+
+- `low`: indicator of birth weight less than 2.5 kg (0 = more than 2.5 kg, 1 = less than 2.5 kg).
+- `age`: mother's age in years.
+- `lwt`: mother's weight in pounds at last menstrual period.
+- `race`: mother's race (1 = white, 2 = black, 3 = other).
+- `smoke`: smoking status during pregnancy (0 = nonsmoker, 1 = smoker).
+- `ptl`: number of previous premature labors.
+- `ht`: history of hypertension (0 = no history, 1 = history of hypertension).
+- `ui`: presence of uterine irritability (0 = no presence, 1 = presence of uterine irritability).
+- `ftv`: number of physician visits during the first trimester.
+- `bwt`: birth weight in grams.
+
+```{r, message=FALSE, warning=FALSE}
+library(tidyverse)
+library(caret)
+library(tree)
+library(MASS)
+
+data(birthwt)
+```
+
+Since we are interested in predicting birth weight, we drop the `low` indicator from the dataset. We also convert `race`, `smoke`, `ht`, and `ui` to factors, because these variables are categorical and not numeric/continuous. 
+
+Comment: Both the `dplyr` and `MASS` packages export a function called `select`, which is why the `dplyr::` is necessary in `dplyr::select`. This makes it clear to R that we want to use the `select` function from the `dplyr` package. 
+
+```{r}
+birthwt <- 
+  birthwt %>% 
+  dplyr::select(-low) %>%
+  mutate(race = factor(race), 
+         smoke = factor(smoke), 
+         ht = factor(ht), 
+         ui = factor(ui))
+```
+
+We use `createDataPartition` to split the birth weight data into equally-sized training and test sets. 
+
+```{r}
+set.seed(9)
+birthwt_index_train <- createDataPartition(y = birthwt$bwt, 
+                                           times = 1, p = 0.5, list = FALSE)
+birthwt_train_set <- slice(birthwt, birthwt_index_train)
+birthwt_test_set <- slice(birthwt, -birthwt_index_train)
+```
+
+
+### Question 1.1
+Based on the training set, make some plots to help you assess the relationship between our outcome of interest, `bwt`, and each of the other eight variables in the dataset. Which variables seem like good predictors of birth weight? 
+
+```{r}
+# Your code here
+```
+
+### Question 1.2
+
+Fit a regression tree that predicts `bwt` using all of the other variables in the training data. You can use the `tree` function from the `tree` package. Make a plot that visualizes the tree.
+
+```{r}
+# Your code here
+```
+
+### Question 1.3
+Use the `cv.tree` function to determine a reasonable tree size. Be sure to set a random seed so that your code is reproducible (the solutions use `set.seed(16)`). Prune your tree from Q1.2 to have this "best" size, using the `best` argument in the `prune.tree` function. Visualize the pruned tree and compare the variables used to construct it with the variables used to construct the tree from Q1.2. 
+
+```{r}
+# Your code here
+```
+
+### Question 1.4
+For each of the models from Q1.2 and Q1.3, calculate birth weight predictions for the observations in the test set. Compare model performance in terms of the test mean-squared error (MSE). 
+
+```{r}
+# Your code here
+```
+
+---
+
+## 2. Decision Trees, Bagging, and Random Forests for Multi-Class Outcomes
+
+In the final section of this lab, we will use gene expression data to classify tissue samples. The data can be loaded from the `dslabs` package by calling `data(tissue_gene_expression)`. `tissuesGeneExpression` is a list with two elements: 
+
+- `x`: Numeric matrix with 189 rows and 500 columns. Each column contains gene expression measurements for a different gene. 
+- `y`: Factor vector of length 189 that records tissue type labels (cerebellum, colon, endometrium, hippocampus, kidney, liver, or placenta) . 
+
+The original data (accessible in the `tissuesGeneExpression` package) records gene expression for 22,215 genes. 
+
+```{r, message=FALSE, warning=FALSE}
+library(tidyverse)
+library(caret)
+library(GGally)
+library(tree)
+library(randomForest)
+library(dslabs)
+
+data(tissue_gene_expression)
+```
+
+We will only use a random sample of 100 genes to predict tissue type. 
+
+```{r}
+set.seed(25)
+tiss_ge <- 
+  data.frame(y = tissue_gene_expression$y, 
+             tissue_gene_expression$x[,sample(500, 100)])
+```
+
+As usual, we split the data into training and test sets, each with about 50% of the data. 
+
+```{r}
+set.seed(36)
+tiss_ge_index_train <- createDataPartition(y = tiss_ge$y, 
+                                           times = 1, p = 0.5, list = FALSE)
+tiss_ge_train_set <- slice(tiss_ge, tiss_ge_index_train)
+tiss_ge_test_set <- slice(tiss_ge, -tiss_ge_index_train)
+```
+
+
+### Question 2.1
+
+Below, you will find some plots and tables of the training set designed to help you develop some intuition for the data. Describe what you see. 
+
+This is a frequency table for the tissue types in the training data. 
+
+```{r}
+table(tiss_ge_train_set$y)
+```
+
+It is difficult to make visualizations for all 100 genes in the dataset, so let's randomly sample six to focus on. 
+
+```{r}
+set.seed(49)
+genes6 <- sample(names(tiss_ge)[-1], 6)
+genes6
+```
+
+Here are histograms of the gene expression distributions of the six genes.  
+
+```{r}
+tiss_ge_train_set %>% 
+  pivot_longer(cols = genes6,
+               values_to = 'expression',
+               names_to = 'gene') %>% 
+  ggplot(aes(x = expression)) + 
+  geom_histogram(color = "black") + 
+  facet_wrap(~gene) + 
+  xlab(NULL) + ylab(NULL)
+```
+
+The boxplots below plot gene expression against tissue type for the six genes. Note that setting `scales = 'free_y'` allows the y-axis to vary from plot to plot, so they are not on the same scale. 
+
+```{r}
+tiss_ge_train_set %>% 
+  pivot_longer(cols = genes6,
+               values_to = 'expression',
+               names_to = 'gene') %>% 
+  ggplot(aes(x = y, y = expression)) + 
+  geom_boxplot() + 
+  facet_wrap(~ gene, scales = 'free_y') + 
+  xlab(NULL) + ylab(NULL) + 
+  scale_x_discrete(labels = str_to_title(unique(tiss_ge_train_set$y))) +
+  theme(axis.text.x = element_text(angle = 45, hjust=1))
+```
+
+The `ggcorr` function from the `GGally` package makes pretty correlation matrix plots. Each tiny square in this plot represents the correlation between a pair of genes (out of the entire set of 100 genes). Red indicates positive correlation (close to 1), blue indicates negative correlation (close to -1), and white indicates no correlation (close to 0). 
+
+```{r}
+ggcorr(tiss_ge_train_set[,-1], hjust = 1, size = 1.5, layout.exp = 10)
+```
+
+**Your text answer here**
+
+### Question 2.2
+
+Using the `tree` function from the `tree` package and all of the training set gene expression data, build a decision tree to classify the tissue types. Get the predicted class labels for the test set data, report the test accuracy, and comment on the test confusion matrix. 
+
+```{r}
+# Your code here
+```
+
+### Question 2.3
+
+Fit a bagging (bootstrap aggregation) model to the training data by running `randomForest` from the `randomForest` package with the `mtry` parameter set to the number of predictors (`mtry = 100`). Be sure to set a random seed so that your code is reproducible (the solutions use `set.seed(64)`). Get the predicted class labels for the test set data and report the test accuracy. 
+
+```{r}
+# Your code here
+```
+
+### Question 2.4
+
+Now, build a random forest model with the `mtry` parameter set to the square root of the number of predictors. Also, set `importance = TRUE` so that the importance of the predictors is assessed. You will need the variable importance information for Q2.5. Be sure to set a random seed so that your code is reproducible (the solutions use `set.seed(81)`). Get the predicted class labels for the test set data and report the test accuracy. 
+
+```{r}
+# Your code here
+```
+
+### Question 2.5
+
+Run the `importance` function on your random forest model from Q2.4 to extract variable importance measures for each of the tissue types. Find the five most important genes for classifying kidney tissues by ordering the Gini index measures. Compare these five genes with the genes that were used to construct the classification tree in Q2.2.
+
+Optional: Extract the five most important genes for each of the seven tissues, and compare these results with the genes that were used to construct the classification tree in Q2.2.
+
+
+```{r}
+# Your code here
+```
+
