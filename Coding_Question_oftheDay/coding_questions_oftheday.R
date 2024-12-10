@@ -642,7 +642,7 @@ confusionMatrix(data = as.factor(y_hat_logit),
                 reference = as.factor(test_set$fertility_cat), positive = 'High')
 
 
-#-------------------------------------------------------------------------------
+#------------------------------------------------------------------------------
 # 12/5/2024
 
 # Same setup as 12/3 question of the day, but new model.
@@ -676,4 +676,69 @@ train_index <- createDataPartition(y, times = 1, p = 0.7, list = FALSE) # Partit
 
 train_set <- gapminder_1970[train_index, ] # Create training set
 test_set <- gapminder_1970[-train_index, ] # Create test set
+
+# Fit QDA model
+qda_fit <- qda(fertility_cat ~ life_expectancy, data = train_set)
+
+# Calculate predicted probabilities
+qda_preds <- predict(qda_fit, test_set)
+
+# Print confusion matrix to view evaluation metrics
+confusionMatrix(data = as.factor(qda_preds$class), 
+                reference = as.factor(test_set$fertility_cat), positive = '1')
+
+# Confusion Matrix and Statistics
+
+#            Reference
+# Prediction  0  1
+#     0       18 2
+#     1       2 33
+
+# Accuracy : 0.9273          
+# Sensitivity : 0.9429          
+# Specificity : 0.9000          
+
+
+#------------------------------------------------------------------------------
+# 12/5/2024
+
+# Similar setup as 12/5 question of the day, but new year and different model.
+
+# Using the gapminder dataset, fit a classification tree model that predicts fertility 
+# (low vs high) using life expectancy, infant mortality, population, gdp, and region
+# as predictors and data from the year 1989 only. Print the tree. Which variables were 
+# used to construct the tree?
+
+# The code that categorizes fertility into low (fertility <= 4) and high 
+# (fertility > 4) groups, with 0 indicating low fertility and 1 high fertility, 
+# has been provided. The training and test sets using 70% of the data for the 
+# training set and 30% for the test set have also been coded for you.
+
+library(dplyr)
+library(ggplot2)
+library(caret)
+library(dslabs)
+library(tree)
+library(rpart)
+
+data(gapminder)
+set.seed(9)
+
+gapminder_1989 <- gapminder %>% 
+  filter(year == 1989) %>%
+  mutate(fertility_cat = ifelse(fertility <= 4, 0, 1))
+
+y <- gapminder_1989$fertility_cat
+
+train_index <- createDataPartition(y, times = 1, p = 0.7, list = FALSE) # Partition data 
+
+train_set <- gapminder_1989[train_index, ] # Create training set
+test_set <- gapminder_1989[-train_index, ] # Create test set
+
+
+
+
+
+
+
 
