@@ -700,12 +700,12 @@ confusionMatrix(data = as.factor(qda_preds$class),
 
 
 #------------------------------------------------------------------------------
-# 12/5/2024
+# 12/10/2024
 
 # Similar setup as 12/5 question of the day, but new year and different model.
 
 # Using the gapminder dataset, fit a classification tree model that predicts fertility 
-# (low vs high) using life expectancy, infant mortality, population, gdp, and region
+# (low vs high) using life expectancy, infant mortality, population, and gdp
 # as predictors and data from the year 1989 only. Print the tree. Which variables were 
 # used to construct the tree?
 
@@ -720,6 +720,7 @@ library(caret)
 library(dslabs)
 library(tree)
 library(rpart)
+library(rpart.plot)
 
 data(gapminder)
 set.seed(9)
@@ -735,7 +736,17 @@ train_index <- createDataPartition(y, times = 1, p = 0.7, list = FALSE) # Partit
 train_set <- gapminder_1989[train_index, ] # Create training set
 test_set <- gapminder_1989[-train_index, ] # Create test set
 
+# Using the rpart function
+tree_fit <- rpart(as.factor(fertility_cat) ~ life_expectancy + infant_mortality + population + gdp, train_set)
 
+# Print the tree
+rpart.plot(tree_fit, digits = 4)
+
+# Make predictions
+y_hat_tree <- predict(tree_fit, newdata = test_set, type = "class")
+
+# Calculate performance metrics with confusion matrix
+confusionMatrix(y_hat_tree, as.factor(test_set$fertility_cat), positive = '1')
 
 
 
