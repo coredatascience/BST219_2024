@@ -797,5 +797,21 @@ train_index <- createDataPartition(y, times = 1, p = 0.7, list = FALSE) # Partit
 train_set <- gapminder_1989[train_index, ] # Create training set
 test_set <- gapminder_1989[-train_index, ] # Create test set
 
+# Train random forest
+rf_fit <- randomForest(fertility_cat ~ life_expectancy + infant_mortality + population + gdp, mtry = 4, train_set) #, na.action = na.omit)
 
+# Make predictions
+y_hat_rf <- predict(rf_fit, newdata = test_set, type = "class")
+
+# Calculate performance metrics with confusion matrix
+confusionMatrix(y_hat_rf, as.factor(test_set$fertility_cat), positive = '1')
+
+#             Reference
+# Prediction  0  1
+# 0           20  2
+# 1           3 19
+
+# Accuracy : 0.8864          
+# Sensitivity : 0.9048          
+# Specificity : 0.8696 
 
