@@ -727,9 +727,10 @@ set.seed(9)
 
 gapminder_1989 <- gapminder %>% 
   filter(year == 1989) %>%
-  mutate(fertility_cat = ifelse(fertility <= 4, 0, 1))
+  dplyr::select(life_expectancy, infant_mortality, population, gdp, fertility) %>%
+  mutate(fertility_cat = as.factor(ifelse(fertility <= 4, 0, 1)))
 
-y <- gapminder_1989$fertility_cat
+gapminder_1989 <- gapminder_1989[complete.cases(gapminder_1989), ]
 
 train_index <- createDataPartition(y, times = 1, p = 0.7, list = FALSE) # Partition data 
 
@@ -748,8 +749,53 @@ y_hat_tree <- predict(tree_fit, newdata = test_set, type = "class")
 # Calculate performance metrics with confusion matrix
 confusionMatrix(y_hat_tree, as.factor(test_set$fertility_cat), positive = '1')
 
+#             Reference
+# Prediction  0  1
+# 0           18  5
+# 1           5 16
 
+# Accuracy : 0.7727          
+# Sensitivity : 0.7619          
+# Specificity : 0.7826
 
+#------------------------------------------------------------------------------
+# 12/17/2024
+
+# Same setup as 12/10 question of the day, but different model.
+
+# Using the gapminder dataset, fit a Random Forest model that predicts fertility 
+# (low vs high) using life expectancy, infant mortality, population, and gdp
+# as predictors and data from the year 1989 only. Make sure it is a bagging model.
+# Compare the accuracy, sensitivity, and specificity for this model to the tree 
+# model from the December 10th question of the day.
+
+# The code that categorizes fertility into low (fertility <= 4) and high 
+# (fertility > 4) groups, with 0 indicating low fertility and 1 high fertility, 
+# has been provided. The training and test sets using 70% of the data for the 
+# training set and 30% for the test set have also been coded for you.
+
+library(dplyr)
+library(ggplot2)
+library(caret)
+library(dslabs)
+library(randomForest)
+
+data(gapminder)
+set.seed(9)
+
+gapminder_1989 <- gapminder %>% 
+  filter(year == 1989) %>%
+  dplyr::select(life_expectancy, infant_mortality, population, gdp, fertility) %>%
+  mutate(fertility_cat = as.factor(ifelse(fertility <= 4, 0, 1)))
+
+gapminder_1989 <- gapminder_1989[complete.cases(gapminder_1989), ]
+
+y <- gapminder_1989$fertility_cat
+
+train_index <- createDataPartition(y, times = 1, p = 0.7, list = FALSE) # Partition data 
+
+train_set <- gapminder_1989[train_index, ] # Create training set
+test_set <- gapminder_1989[-train_index, ] # Create test set
 
 
 
